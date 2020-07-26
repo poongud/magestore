@@ -1,0 +1,33 @@
+<?php
+$bizkickHelper = $this->helper('Hiddentechies\Bizkick\Helper\Data');
+$enablePromotion = $bizkickHelper->getConfigValue('bizkicksettings/promotion_settings/enable_promotion');
+$promotionText = $bizkickHelper->getConfigValue('bizkicksettings/promotion_settings/promotion_text');
+?>
+<?php if ($enablePromotion == 1) { ?>
+    <?php if ($promotionText != '') { ?>
+        <div class="promotion-wrapper">
+            <div class="page-main">
+                <?php echo $promotionText; ?>
+            </div>
+        </div>
+    <?php } ?>
+<?php } ?>
+<script type="text/javascript">
+        require(['jquery', 'bizkickowlcarousel'], function() {
+            jQuery(document).ready(function() {
+                jQuery(".home-slider").owlCarousel({
+                    items: 1,
+                    itemsDesktop: [1198, 1],
+                    itemsDesktopSmall: [1023, 1],
+                    itemsTablet: [768, 1],
+                    itemsTabletSmall: [767, 1],
+                    itemsMobile: [479, 1],
+                    pagination: true,
+                    navigationText: ["<div class='left-arrow'><i class='fa fa-angle-left'></i></div>", "<div class='right-arrow'><i class='fa fa-angle-right'></div>"],
+                    navigation: true,
+                    autoPlay: 5000
+                });
+                jQuery(".home-slider li").show();
+            });
+        });
+    </script>

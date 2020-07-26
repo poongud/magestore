@@ -1,0 +1,18 @@
+<?php
+$availableSize = [];
+$availableSize[] = $block->getProduct()->getAvailableSize();
+?>
+<span>Available Size</span>
+<ul>
+        <li class="active-options"> <?= /* @noEscape */ $block->getProduct()->getAvailableSize() ?> </li>
+        <?php foreach ($block->getProduct()->getUpSellProductCollection() as $product):
+                if (!in_array($product->getAvailableSize(), $availableSize)): ?>
+                        <?php $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                        $product = $objectManager->get('Magento\Catalog\Api\ProductRepositoryInterface')
+                        ->getById($product->getId());
+                        if ($product->getAvailableSize()) {   ?>
+                                <li> <a href="<?= /* @noEscape */ $product->getProductUrl(); ?>"> <?= /* @noEscape */ $product->getAvailableSize() ?></a> </li>
+                        <?php } ?>
+                <?php endif; ?>         
+        <?php endforeach; ?>
+</ul>

@@ -1,0 +1,141 @@
+<?php ?>
+
+<script>
+
+
+require(["jquery","jquery/ui"], function($) {
+    'use strict'
+    
+    function BasePriceChange()
+    {
+        var gst = parseFloat($('input[name="product[gst]"]').val());
+        var mrp = parseFloat($('input[name="product[mrp_price]"]').val());
+       
+        if(isNaN(gst) === false  && isNaN(mrp) === false){
+
+            var basePrice = $('input[name="product[price]"]');
+            var oldPrice = basePrice.val();
+
+            var priceVal = mrp/((100+gst)/100);
+            var fprice = parseFloat(priceVal).toFixed(2);
+            if(!isNaN(fprice)){
+                basePrice.val( isNaN(fprice)?oldPrice:fprice ).trigger("change");;
+            }
+        }
+    }
+
+    function eventUpdate() {
+        $('input[name="product[price]"]').attr("disabled", true)
+
+        $('input[name="product[gst]"]').focusout(function(){
+            BasePriceChange();
+        });
+        $('input[name="product[mrp_price]"]').focusout(function(){
+            BasePriceChange();
+        });
+        $('.action-additional').focusout(function(){
+            eventSpl();
+	    var pri = $('input[name="product[mrp_price]"]').val();
+	    var textMrp = jQuery('input[name="product[mrp_price]"]').parents('.admin__field').find('.admin__field-label span').text();
+	    var valueD = "<b class='display-mrp'>"+textMrp +"    :     "+pri+"<b>";
+$('.display-mrp').remove();
+$(".product_form_product_form_advanced_pricing_modal .modal-content .admin__fieldset-wrapper-content._show").before(valueD);
+	     $('.display-mrp').css("margin-left","13%");
+        });
+    }
+
+    function SplPriceChange()
+    {
+        var gst = parseFloat($('input[name="product[gst]"]').val());
+        var mrp = parseFloat($('input[name="product[offer_price]"]').val());
+       
+        if(isNaN(gst) === false  && isNaN(mrp) === false){
+
+            var basePrice = $('input[name="product[special_price]"]');
+            var oldPrice = basePrice.val();
+
+            var priceVal = mrp/((100+gst)/100);
+            var fprice = parseFloat(priceVal).toFixed(2);
+            if(!isNaN(fprice)){
+                basePrice.val( isNaN(fprice)?oldPrice:fprice ).trigger("change");;
+            }
+        }
+    }
+
+    function addRowTable(){
+        jQuery('.admin__dynamic-rows tbody input').focusout('input',function(e){
+
+        var rowIndex = $(this).parents('.data-row').attr('data-repeat-index');
+        var selectType  = $('select[name="product[tier_price]['+rowIndex+'][value_type]"]');
+        var mrp = parseFloat($(this).val());
+           if($(this).attr('name').match('price_mrp') == "price_mrp" && selectType.val() == "fixed"){
+                var gst = parseFloat($('input[name="product[gst]"]').val());
+                var mrp = parseFloat($(this).val());
+                var inputPrice = $('input[name="product[tier_price]['+rowIndex+'][price]"]');
+
+                if(isNaN(gst) === false  && isNaN(mrp) === false){
+                    var oldPrice = inputPrice.val();
+                    var priceVal = mrp/((100+gst)/100);
+                    var fprice = parseFloat(priceVal).toFixed(2);
+                    if(!isNaN(fprice)){
+                        inputPrice.val( isNaN(fprice)?oldPrice:fprice ).trigger("change").attr("disabled", true);
+                    }
+                }
+           }else if(selectType.val() == "percent"){
+                var inputPrice = $('input[name="product[tier_price]['+rowIndex+'][percentage_value]"]');
+                inputPrice.val(mrp);
+           }
+        });
+    }
+    function eventSpl() {
+        $('input[name="product[special_price]"]').attr("disabled", true)
+        
+        $('input[name="product[offer_price]"]').focusout(function(){
+            SplPriceChange();
+        });
+        
+        $('input[name="product[offer_price]"]').focusout(function(){
+            SplPriceChange();
+        });
+
+        $('.admin__dynamic-rows button').on('click',function(){
+            setTimeout(function(){
+                addRowTable(); 
+            }, 600);
+        });
+
+	$('.admin__dynamic-rows .data-row input').focusout(function(){
+		var rowIndex = $(this).parents('.data-row').attr('data-repeat-index');
+		var name  = "product[tier_price]["+rowIndex+"][price_mrp]";
+	
+		if(name === $(this).attr('name')){
+			var selectType  = $('select[name="product[tier_price]['+rowIndex+'][value_type]"]');
+			var mrp = parseFloat($(this).val());
+			   if($(this).attr('name').match('price_mrp') == "price_mrp" && selectType.val() == "fixed"){
+				var gst = parseFloat($('input[name="product[gst]"]').val());
+				var mrp = parseFloat($(this).val());
+				var inputPrice = $('input[name="product[tier_price]['+rowIndex+'][price]"]');
+
+				if(isNaN(gst) === false  && isNaN(mrp) === false){
+				    var oldPrice = inputPrice.val();
+				    var priceVal = mrp/((100+gst)/100);
+				    var fprice = parseFloat(priceVal).toFixed(2);
+				    if(!isNaN(fprice)){
+				        inputPrice.val( isNaN(fprice)?oldPrice:fprice ).trigger("change").attr("disabled", true);
+				    }
+				}
+			   }else if(selectType.val() == "percent"){
+				var inputPrice = $('input[name="product[tier_price]['+rowIndex+'][percentage_value]"]');
+				inputPrice.val(mrp);
+			   }
+		}
+	});
+
+    }
+
+    $(document).on({
+        ajaxStop: function() { eventUpdate(); }    
+    });
+        
+});
+</script>

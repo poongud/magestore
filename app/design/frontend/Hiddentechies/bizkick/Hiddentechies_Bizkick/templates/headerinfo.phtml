@@ -1,0 +1,147 @@
+<div class="header-pincode-location">
+<i class="fa fa-truck" aria-hidden="true"></i> 
+<label class="localtion-selection">
+<span class="location-label">Delivering to</span>
+<a class="selected-location"> </a>
+</label>
+</div>
+<?php echo $this->getLayout()->createBlock('Magento\Cms\Block\Block')->setBlockId('home-contactus-block')->toHtml(); ?>
+<div class="callfor-popup no-display" >
+   	   <div class="location-search-pop">
+		    <label>Our Available Delivery Location</label>
+                    <p class="city-select">
+			<span class="city_chennai">Chennai</span>
+                        <span class="city_blr center">Bengaluru</span>
+                        <span class="city_mohali">Penukonda</span>
+                    </p>
+            </div>
+	   <div class="product-item-inner">
+		<form id="location-form" data-mage-init='{"validation": {}}'>
+		<fieldset class="fieldset login">
+			<div class="field note">Where do you want us to deliver your products?</div>
+			<div class="field">
+			    <div class="control">
+			       <input name="pincode" value="" autocomplete="off" id="pincode" type="text" class="input-text required-entry validate-zip-international" title="Enter the pincode" placeholder="Enter the pincode">
+			    </div>
+			    <div class="show-error-msg"><p> </p></div>
+			</div>
+			 <div class="actions-toolbar">
+			    <div class="secondary"><button type="button" class="action login secondary" name="location-cancel" id="location-cancel"><span>Cancel</span></button></div>
+			    <div class="primary"><button type="button" class="action login primary" name="location-check" id="location-check"><span>Check Delivery</span></button></div>
+			</div>
+		</fieldset>
+		</form>
+	   </div>
+</div>
+<style>
+.header-pincode-location {
+    float: right;
+    margin-right: 15px;
+}
+.header-pincode-location > i{
+    font-size: 21px;
+}
+.pincode-check-modal header.modal-header {
+    display: none;
+}
+.city-select span {
+    padding: 0px 5px 0px 5px;
+}
+.city-select span.center {
+    border-left: 1px solid red;	
+    border-right: 1px solid red;	
+}
+.pincode-check-modal footer.modal-footer {
+    display: none;
+}
+.modal-popup.pincode-check-modal._inner-scroll .modal-inner-wrap{
+  width: 40%;
+}
+.callfor-popup{
+  margin-top: 15px;
+}
+.location-search-pop{
+    text-align: center;
+    line-height: 2;
+}
+.location-search-pop label{
+    font-weight: bold;
+    font-size: 15px;
+}
+.location-search-pop p{
+    font-weight: 600;
+    font-size: 12px;
+
+}
+input#pincode::placeholder {
+    color: #A9A9A9;
+}
+</style>
+<script>
+require([
+    'jquery',
+    'Magento_Ui/js/modal/modal',
+    'jquery/jquery.cookie',
+    'domReady!',
+    'mage/validation'
+], function($,modal) {
+  var showPincode = ($.cookie("pincode")) ? $.cookie("pincode") : "check here";
+  $('.selected-location').text(showPincode);
+  var dataForm = $('#location-form');
+    function displayMessage(msg,status,reset = false) {
+        var msgeml = $('.show-error-msg p');
+        if(reset){
+            msgeml.html('');
+        }else{
+            msgeml.html(msg);
+            
+            if(status) msgeml.css({color: 'green'});
+            else msgeml.css({color: 'red'});
+        }
+        jQuery('body').trigger('processStop');
+    }
+    
+	$('.selected-location').on('click',function(){
+	    displayMessage("","",true);
+		var modaloption = {
+		       type: 'popup',
+		       modalClass: 'modal-popup',
+		       responsive: true,
+		       innerScroll: true,
+		       clickableOverlay: true,
+		       title: 'Simple Modal',
+		       modalClass: 'pincode-check-modal',
+           	};
+		   var callforoption = modal(modaloption, $('.callfor-popup'));
+		   $('.callfor-popup').modal('openModal');	
+	});
+	$('#location-check').on('click',function(){
+	    displayMessage("","",true);
+		if(dataForm.valid() !== false){
+		jQuery('body').trigger('processStart');
+			jQuery.ajax({
+			    type: 'POST',
+			    url: "<?= $block->getUrl('shqmatrixrate/shipping/deliverycheck'); ?>",
+			    data: dataForm.serialize(),
+			    dataType: "json",
+			    success: function (data) {			        
+			        if(data.status){
+			               displayMessage(data.message,data.status,false);
+			               $.cookie('pincode',data.pincode);
+			               $('.selected-location').text(data.pincode);
+			        }else{
+			               displayMessage(data.message,data.status,false);
+			        }
+			    },
+			    error: function (xhr, status, error) {
+			    
+			            displayMessage(xhr.responseText,false,false);
+			    }
+			});
+		}
+	});
+	$('#location-cancel').on('click',function(){
+		$(".callfor-popup").modal("closeModal");
+	});  
+});
+</script>
